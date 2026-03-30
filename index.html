@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pathway — Referral Infrastructure · Heidi Entry Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f5f3ef; color: #1a1a1a; }
+
+  /* ── shared nav ── */
+  .pw-topbar { background: #fff; border-bottom: 1px solid #e8e4de; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .pw-logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1a6b5a; }
+  .pw-logo span { color: #b5cfc9; }
+  .pw-topbar-right { font-size: 13px; color: #6b6b6b; display: flex; align-items: center; gap: 12px; }
+  .pw-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+
+  /* ── nav pills ── */
+  .pw-nav { background: #fff; border-bottom: 1px solid #e8e4de; padding: 0 24px; display: flex; gap: 0; overflow-x: auto; }
+  .pw-nav-pill { font-size: 12px; font-weight: 500; padding: 12px 16px; color: #9a9a9a; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'DM Sans', sans-serif; }
+  .pw-nav-pill:hover { color: #1a1a1a; }
+  .pw-nav-pill.active { color: #1a6b5a; border-bottom-color: #1a6b5a; }
+
+  /* ── screens ── */
+  .pw-screen { display: none; min-height: calc(100vh - 97px); }
+  .pw-screen.active { display: block; }
+  .pw-main { max-width: 720px; margin: 0 auto; padding: 32px 24px; }
+  .pw-main-sm { max-width: 680px; margin: 0 auto; padding: 48px 24px 40px; }
+
+  /* ── steps ── */
+  .pw-step-row { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; }
+  .pw-step { width: 28px; height: 6px; border-radius: 3px; background: #e8e4de; }
+  .pw-step.done { background: #a8d5c9; }
+  .pw-step.active { background: #1a6b5a; }
+
+  /* ── type ── */
+  .pw-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; color: #1a6b5a; text-transform: uppercase; margin-bottom: 6px; }
+  .pw-heading { font-family: 'DM Serif Display', serif; font-size: 26px; color: #1a1a1a; margin-bottom: 4px; }
+  .pw-subheading { font-size: 14px; color: #7a7a7a; margin-bottom: 28px; }
+
+  /* ── cards ── */
+  .pw-card { background: #fff; border-radius: 16px; border: 1px solid #e8e4de; overflow: hidden; margin-bottom: 16px; }
+  .pw-card-header { padding: 18px 24px 16px; border-bottom: 1px solid #f0ece6; display: flex; align-items: center; justify-content: space-between; }
+  .pw-card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .pw-card-sub { font-size: 12px; color: #9a9a9a; }
+  .pw-card-body { padding: 20px 24px; }
+
+  /* ── badges ── */
+  .pw-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .pw-badge-ai { background: #eef0fc; color: #4a5adb; }
+  .pw-badge-booked { background: #e8f4f1; color: #1a6b5a; }
+  .pw-badge-new { background: #fff3e0; color: #854f0b; }
+  .pw-badge-warn { background: #fff3e0; color: #854f0b; }
+  .pw-badge-success { background: #e8f4f1; color: #1a6b5a; }
+  .pw-badge-missed { background: #fdecea; color: #a32d2d; }
+
+  /* ── buttons ── */
+  .pw-btn { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 11px 24px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.15s; }
+  .pw-btn-primary { background: #1a6b5a; color: #fff; }
+  .pw-btn-primary:hover { background: #155848; }
+  .pw-btn-secondary { background: #fff; color: #4a4a4a; border: 1px solid #e8e4de; }
+  .pw-btn-secondary:hover { background: #f5f3ef; }
+  .pw-btn-ghost { background: transparent; color: #1a6b5a; border: 1px solid #a8d5c9; }
+  .pw-btn-ghost:hover { background: #e8f4f1; }
+  .pw-action-bar { padding: 16px 24px; background: #faf9f7; border-top: 1px solid #f0ece6; display: flex; gap: 12px; align-items: center; }
+
+  /* ── form fields ── */
+  .pw-field { margin-bottom: 16px; }
+  .pw-field-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #9a9a9a; margin-bottom: 6px; }
+  .pw-field-value { font-size: 14px; color: #2a2a2a; line-height: 1.5; }
+  .pw-field-value.editable { background: #f9f7f4; border: 1px solid #e8e4de; border-radius: 8px; padding: 10px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #2a2a2a; width: 100%; resize: none; outline: none; transition: border-color 0.15s; }
+  .pw-field-value.editable:focus { border-color: #1a6b5a; }
+  .pw-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pw-tag { font-size: 12px; padding: 4px 12px; border-radius: 20px; background: #f5f3ef; color: #4a4a4a; border: 1px solid #e8e4de; }
+  .pw-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* ── patient rows ── */
+  .pw-patient-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0ece6; }
+  .pw-patient-avatar { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 18px; flex-shrink: 0; }
+  .pw-patient-name { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+  .pw-patient-meta { font-size: 12px; color: #9a9a9a; }
+
+  /* ── ai note ── */
+  .pw-ai-note { background: #eef0fc; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #4a5adb; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px; }
+
+  /* ── success states ── */
+  .pw-success-block { padding: 40px 24px; text-align: center; }
+  .pw-success-icon { width: 56px; height: 56px; background: #e8f4f1; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; }
+  .pw-success-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
+  .pw-success-sub { font-size: 14px; color: #7a7a7a; margin-bottom: 24px; line-height: 1.6; }
+  .pw-next-btn { background: #1a6b5a; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; }
+  .pw-next-btn:hover { background: #155848; }
+
+  /* ── phone ── */
+  .pw-phone { background: #1a1a1a; border-radius: 36px; padding: 12px; width: 100%; max-width: 240px; margin: 0 auto; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+  .pw-phone-screen { background: #f2f2f7; border-radius: 28px; overflow: hidden; min-height: 420px; }
+  .pw-phone-status { background: #f2f2f7; padding: 12px 20px 6px; display: flex; justify-content: space-between; }
+  .pw-phone-time { font-size: 12px; font-weight: 600; color: #1a1a1a; }
+  .pw-sms-header { background: #f2f2f7; padding: 8px 20px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #ddd; }
+  .pw-sms-avatar { width: 36px; height: 36px; border-radius: 50%; background: #d4ebe5; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #1a6b5a; }
+  .pw-sms-sender { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .pw-sms-sender-sub { font-size: 10px; color: #6b6b6b; }
+  .pw-sms-body { padding: 16px 14px; }
+  .pw-bubble { background: #e8e8ed; border-radius: 16px 16px 16px 4px; padding: 12px 14px; font-size: 12px; color: #1a1a1a; line-height: 1.5; margin-bottom: 10px; }
+  .pw-sms-link { display: block; background: #1a6b5a; color: #fff; text-align: center; border-radius: 10px; padding: 11px 14px; font-size: 12px; font-weight: 600; margin-top: 12px; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; width: 100%; }
+  .pw-sms-time { font-size: 10px; color: #9a9a9a; text-align: center; margin-bottom: 10px; }
+  .pw-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .pw-col-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #9a9a9a; margin-bottom: 12px; }
+
+  /* ── booking ── */
+  .pw-referral-banner { background: #e8f4f1; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; }
+  .pw-referral-banner-label { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: #1a6b5a; margin-bottom: 4px; }
+  .pw-referral-banner-text { font-size: 13px; color: #2a4a42; line-height: 1.4; }
+  .pw-provider-card { border: 1px solid #e8e4de; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
+  .pw-provider-card:hover { border-color: #1a6b5a; background: #f5fbf9; }
+  .pw-provider-card.selected { border-color: #1a6b5a; background: #e8f4f1; }
+  .pw-provider-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+  .pw-provider-meta { font-size: 11px; color: #7a7a7a; }
+  .pw-provider-dist { font-size: 11px; font-weight: 600; color: #1a6b5a; margin-top: 4px; }
+  .pw-section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #9a9a9a; margin: 16px 0 10px; }
+  .pw-time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+  .pw-time-btn { background: #f5f3ef; border: 1px solid #e8e4de; border-radius: 8px; padding: 8px 4px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: #2a2a2a; cursor: pointer; text-align: center; transition: all 0.15s; }
+  .pw-time-btn:hover { border-color: #1a6b5a; color: #1a6b5a; }
+  .pw-time-btn.selected { border-color: #1a6b5a; background: #1a6b5a; color: #fff; }
+  .pw-confirm-btn { width: 100%; background: #1a6b5a; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; padding: 13px; border-radius: 10px; border: none; cursor: pointer; }
+  .pw-no-account { font-size: 11px; color: #9a9a9a; text-align: center; margin-top: 10px; }
+  .pw-reminder-pill { display: inline-block; background: #fff8ed; border: 1px solid #f5d9a0; border-radius: 20px; padding: 6px 14px; font-size: 12px; color: #854f0b; margin-bottom: 20px; }
+
+  /* ── specialist ── */
+  .pw-patient-hero { padding: 20px 24px; border-bottom: 1px solid #f0ece6; display: flex; align-items: center; gap: 16px; }
+  .pw-patient-hero-avatar { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 22px; flex-shrink: 0; }
+  .pw-patient-hero-name { font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; }
+  .pw-patient-hero-meta { font-size: 12px; color: #9a9a9a; line-height: 1.6; }
+  .pw-appt-pill { margin-left: auto; text-align: right; }
+  .pw-appt-date { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+  .pw-appt-time { font-size: 12px; color: #7a7a7a; }
+  .pw-context-note { background: #fdf8f0; border: 1px solid #f5d9a0; border-radius: 10px; padding: 12px 16px; margin: 18px 24px; font-size: 13px; color: #633806; display: flex; gap: 10px; align-items: flex-start; }
+  .pw-spec-sections { display: grid; grid-template-columns: 1fr 1fr; }
+  .pw-spec-section { padding: 18px 24px; border-right: 1px solid #f0ece6; }
+  .pw-spec-section:last-child { border-right: none; }
+  .pw-spec-section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #9a9a9a; margin-bottom: 12px; }
+  .pw-spec-section-value { font-size: 14px; color: #2a2a2a; line-height: 1.6; }
+  .pw-bullet { display: flex; gap: 8px; margin-bottom: 6px; align-items: flex-start; }
+  .pw-bullet-dot { width: 6px; height: 6px; border-radius: 50%; background: #1a6b5a; margin-top: 6px; flex-shrink: 0; }
+  .pw-bullet-text { font-size: 13px; color: #2a2a2a; line-height: 1.5; }
+  .pw-full-section { padding: 18px 24px; border-top: 1px solid #f0ece6; }
+  .pw-referring { padding: 14px 24px; border-top: 1px solid #f0ece6; display: flex; align-items: center; gap: 12px; }
+  .pw-referring-avatar { width: 32px; height: 32px; border-radius: 50%; background: #d4ebe5; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #1a6b5a; }
+  .pw-referring-text { font-size: 13px; color: #4a4a4a; }
+
+  /* ── dashboard ── */
+  .pw-tab-row { display: flex; gap: 4px; background: #eeece8; border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+  .pw-tab { flex: 1; text-align: center; font-size: 13px; font-weight: 500; padding: 8px 12px; border-radius: 7px; cursor: pointer; color: #7a7a7a; border: none; background: transparent; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .pw-tab.active { background: #fff; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .pw-referral-row { padding: 16px 24px; border-bottom: 1px solid #f0ece6; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: background 0.12s; }
+  .pw-referral-row:hover { background: #faf9f7; }
+  .pw-referral-row.active-row { background: #f5fbf9; border-left: 3px solid #1a6b5a; padding-left: 21px; }
+  .pw-ref-avatar { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 17px; flex-shrink: 0; }
+  .pw-ref-name { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+  .pw-ref-meta { font-size: 12px; color: #9a9a9a; }
+  .pw-ref-right { margin-left: auto; text-align: right; }
+  .pw-ref-date { font-size: 12px; color: #7a7a7a; }
+  .pw-outcome-box { border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .pw-outcome-box.success { background: #e8f4f1; border: 1px solid #a8d5c9; }
+  .pw-outcome-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; color: #1a6b5a; }
+  .pw-outcome-value { font-size: 13px; line-height: 1.6; color: #2a4a42; }
+  .pw-next-review { background: #f5f3ef; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+  .pw-next-review-label { font-size: 12px; color: #7a7a7a; margin-bottom: 2px; }
+  .pw-next-review-val { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .pw-add-btn { margin-left: auto; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; background: #fff; border: 1px solid #e8e4de; border-radius: 8px; padding: 6px 14px; cursor: pointer; color: #4a4a4a; }
+  .pw-timeline { position: relative; padding-left: 20px; }
+  .pw-timeline::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 1px; background: #e8e4de; }
+  .pw-tl-item { position: relative; margin-bottom: 14px; }
+  .pw-tl-dot { width: 10px; height: 10px; border-radius: 50%; position: absolute; left: -19px; top: 3px; }
+  .pw-tl-dot.done { background: #1a6b5a; }
+  .pw-tl-label { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+  .pw-tl-sub { font-size: 12px; color: #9a9a9a; }
+
+  /* ── intro / outro ── */
+  .pw-hero-title { font-family: 'DM Serif Display', serif; font-size: 36px; line-height: 1.2; color: #1a1a1a; margin-bottom: 16px; }
+  .pw-hero-sub { font-size: 15px; color: #5a5a5a; line-height: 1.7; max-width: 560px; margin-bottom: 32px; }
+  .pw-insight-card { background: #fff; border-radius: 16px; border: 1px solid #e8e4de; padding: 24px; margin-bottom: 16px; }
+  .pw-quote-row { display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; }
+  .pw-quote-row:last-child { margin-bottom: 0; }
+  .pw-quote-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .pw-quote-text { font-size: 13px; color: #2a2a2a; line-height: 1.6; padding-top: 2px; }
+  .pw-quote-name { font-size: 11px; color: #9a9a9a; margin-top: 4px; }
+  .pw-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .pw-stat-card { background: #fff; border-radius: 12px; border: 1px solid #e8e4de; padding: 16px 18px; }
+  .pw-stat-num { font-family: 'DM Serif Display', serif; font-size: 28px; color: #1a6b5a; margin-bottom: 4px; }
+  .pw-stat-label { font-size: 12px; color: #7a7a7a; line-height: 1.4; }
+  .pw-how-card { background: #fff; border-radius: 16px; border: 1px solid #e8e4de; padding: 24px; margin-bottom: 16px; }
+  .pw-flow-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pw-flow-pill { background: #f5f3ef; border: 1px solid #e8e4de; border-radius: 20px; padding: 7px 14px; font-size: 12px; font-weight: 500; color: #2a2a2a; white-space: nowrap; }
+  .pw-flow-pill.highlight { background: #e8f4f1; border-color: #a8d5c9; color: #1a6b5a; font-weight: 600; }
+  .pw-flow-arrow { color: #b4b2a9; font-size: 14px; }
+  .pw-flow-note { font-size: 12px; color: #9a9a9a; margin-top: 12px; line-height: 1.5; }
+  .pw-behavior-card { background: #fff; border-radius: 16px; border: 1px solid #e8e4de; padding: 24px; margin-bottom: 24px; }
+  .pw-behavior-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pw-behavior-item { background: #f9f7f4; border-radius: 10px; padding: 14px 16px; }
+  .pw-behavior-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+  .pw-behavior-desc { font-size: 12px; color: #7a7a7a; line-height: 1.5; }
+  .pw-cta { text-align: center; padding: 8px 0 16px; }
+  .pw-cta-sub { font-size: 13px; color: #9a9a9a; margin-bottom: 16px; }
+  .pw-cta-btn { background: #1a6b5a; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; padding: 14px 36px; border-radius: 12px; border: none; cursor: pointer; }
+  .pw-cta-btn:hover { background: #155848; }
+  .pw-cta-note { font-size: 12px; color: #b4b2a9; margin-top: 10px; }
+
+  /* outro */
+  .pw-drop-card { background: #fff; border-radius: 16px; border: 1px solid #e8e4de; padding: 24px; margin-bottom: 16px; }
+  .pw-drop-row { display: flex; gap: 16px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #f0ece6; }
+  .pw-drop-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .pw-drop-num { font-family: 'DM Serif Display', serif; font-size: 22px; color: #1a6b5a; min-width: 36px; }
+  .pw-drop-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+  .pw-drop-desc { font-size: 13px; color: #5a5a5a; line-height: 1.5; }
+  .pw-drop-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; margin-top: 6px; }
+  .pw-drop-tag.timing { background: #e8f4f1; color: #1a6b5a; }
+  .pw-drop-tag.geo { background: #eef0fc; color: #4a5adb; }
+  .pw-drop-tag.friction { background: #fff3e0; color: #854f0b; }
+  .pw-drop-tag.loop { background: #f5e8e0; color: #c26a3a; }
+  .pw-context-card { background: #fff; border-radius: 16px; border: 1px solid #e8e4de; padding: 24px; margin-bottom: 16px; }
+  .pw-context-row { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+  .pw-context-row:last-child { margin-bottom: 0; }
+  .pw-context-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .pw-context-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; }
+  .pw-context-desc { font-size: 12px; color: #7a7a7a; line-height: 1.5; }
+  .pw-loop-card { background: #fff; border-radius: 16px; border: 1px solid #e8e4de; padding: 24px; margin-bottom: 16px; }
+  .pw-loop-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .pw-loop-pill { font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 20px; }
+  .pw-loop-pill.old { background: #fdecea; color: #a32d2d; }
+  .pw-loop-pill.new { background: #e8f4f1; color: #1a6b5a; }
+  .pw-loop-arrow { color: #b4b2a9; font-size: 13px; }
+  .pw-loop-desc { font-size: 13px; color: #5a5a5a; line-height: 1.6; }
+  .pw-trust-card { background: #fff; border-radius: 16px; border: 1px solid #e8e4de; padding: 24px; margin-bottom: 16px; }
+  .pw-trust-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .pw-trust-item { background: #f9f7f4; border-radius: 10px; padding: 14px; text-align: center; }
+  .pw-trust-who { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: #9a9a9a; margin-bottom: 8px; }
+  .pw-trust-val { font-size: 13px; color: #2a2a2a; line-height: 1.5; }
+  .pw-closing { background: #1a6b5a; border-radius: 16px; padding: 32px 28px; text-align: center; margin-bottom: 20px; }
+  .pw-closing-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: #fff; margin-bottom: 10px; }
+  .pw-closing-sub { font-size: 14px; color: #9fe1cb; line-height: 1.7; max-width: 460px; margin: 0 auto; }
+  .pw-footer { text-align: center; padding: 4px 0 24px; }
+  .pw-footer-text { font-size: 11px; color: #b4b2a9; }
+  .pw-footer-text a { color: #b4b2a9; text-decoration: none; border-bottom: 1px solid #d3d1c7; }
+
+  .pw-detail-inner { padding: 22px 24px; }
+  .pw-reminder-flow { padding: 0 24px 22px; }
+  .pw-reminder-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 12px; }
+  .pw-action-note { font-size: 12px; color: #9a9a9a; margin-left: auto; }
+  .section-label-inner { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #9a9a9a; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<div class="pw-topbar">
+  <div class="pw-logo">pathway<span>.</span></div>
+  <div class="pw-topbar-right" id="topbar-right">
+    <span id="topbar-label">Heidi Entry Program · Leslie Cai</span>
+  </div>
+</div>
+
+<nav class="pw-nav">
+  <button class="pw-nav-pill active" onclick="goTo(0)">Overview</button>
+  <button class="pw-nav-pill" onclick="goTo(1)">1 · Doctor approval</button>
+  <button class="pw-nav-pill" onclick="goTo(2)">2 · Patient booking</button>
+  <button class="pw-nav-pill" onclick="goTo(3)">3 · Specialist view</button>
+  <button class="pw-nav-pill" onclick="goTo(4)">4 · Outcome loop</button>
+  <button class="pw-nav-pill" onclick="goTo(5)">Rationale</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════ SCREEN 0: INTRO -->
+<div class="pw-screen active" id="screen-0">
+  <div class="pw-main-sm">
+    <div class="pw-eyebrow">Project 2 — Referral infrastructure</div>
+    <h1 class="pw-hero-title">Referrals are generated.<br>Then they disappear.</h1>
+    <p class="pw-hero-sub">41% of referred patients never book. Not because they don't want care — but because the system drops them the moment they leave the room. This prototype fixes what happens after the referral is created.</p>
+
+    <div class="pw-insight-card">
+      <div class="section-label-inner">Primary research — what practitioners actually said</div>
+      <div class="pw-quote-row">
+        <div class="pw-quote-avatar" style="background:#d4ebe5;color:#1a6b5a;">GP</div>
+        <div>
+          <div class="pw-quote-text">"Patients usually forget about the referral by the time they get home. And I have no way of knowing if they ever went."</div>
+          <div class="pw-quote-name">GP, primary care — Ann Arbor, MI</div>
+        </div>
+      </div>
+      <div class="pw-quote-row">
+        <div class="pw-quote-avatar" style="background:#f5e8e0;color:#c26a3a;">RN</div>
+        <div>
+          <div class="pw-quote-text">"A lot of our patients don't know which providers are near them or take their insurance. They just don't go because it's too hard to figure out."</div>
+          <div class="pw-quote-name">Registered nurse, community health — Ann Arbor, MI</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pw-stats-row">
+      <div class="pw-stat-card"><div class="pw-stat-num">41%</div><div class="pw-stat-label">of referred patients never book an appointment</div></div>
+      <div class="pw-stat-card"><div class="pw-stat-num">0</div><div class="pw-stat-label">visibility for referring doctors after referral is sent</div></div>
+      <div class="pw-stat-card"><div class="pw-stat-num">100%</div><div class="pw-stat-label">of receiving practitioners get "blind" referrals today</div></div>
+    </div>
+
+    <div class="pw-how-card">
+      <div class="section-label-inner">The system — built on top of Heidi Scribe</div>
+      <div class="pw-flow-row">
+        <div class="pw-flow-pill">Heidi generates referral</div>
+        <div class="pw-flow-arrow">→</div>
+        <div class="pw-flow-pill">Doctor approves</div>
+        <div class="pw-flow-arrow">→</div>
+        <div class="pw-flow-pill highlight">SMS to patient instantly</div>
+        <div class="pw-flow-arrow">→</div>
+        <div class="pw-flow-pill highlight">Nearest provider + booking</div>
+        <div class="pw-flow-arrow">→</div>
+        <div class="pw-flow-pill highlight">Specialist gets context</div>
+        <div class="pw-flow-arrow">→</div>
+        <div class="pw-flow-pill highlight">Doctor notified of outcome</div>
+      </div>
+      <div class="pw-flow-note">Heidi already solves documentation. This is the continuity layer for what happens after the referral leaves the room — no app download, no account creation required.</div>
+    </div>
+
+    <div class="pw-behavior-card">
+      <div class="section-label-inner">Why this changes behavior, not just tracking</div>
+      <div class="pw-behavior-grid">
+        <div class="pw-behavior-item"><div class="pw-behavior-title">Act while it's warm</div><div class="pw-behavior-desc">SMS arrives while the consultation is still fresh. Booking takes 60 seconds. No account needed.</div></div>
+        <div class="pw-behavior-item"><div class="pw-behavior-title">Remove the geography barrier</div><div class="pw-behavior-desc">Nearest providers surfaced automatically. Critical for underserved and older patients who can't easily search.</div></div>
+        <div class="pw-behavior-item"><div class="pw-behavior-title">48hr reminder if no booking</div><div class="pw-behavior-desc">Automated SMS nudge catches patients who meant to book but forgot. Closes the gap without doctor effort.</div></div>
+        <div class="pw-behavior-item"><div class="pw-behavior-title">Full loop visibility</div><div class="pw-behavior-desc">Referring doctors see every step — booked, attended, outcome. No more chasing. No more wondering.</div></div>
+      </div>
+    </div>
+
+    <div class="pw-cta">
+      <div class="pw-cta-sub">5 screens · 3 perspectives · fully clickable</div>
+      <button class="pw-cta-btn" onclick="goTo(1)">Walk through the prototype →</button>
+      <div class="pw-cta-note">Doctor view · Patient booking · Specialist context · Outcome loop</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ SCREEN 1: DOCTOR -->
+<div class="pw-screen" id="screen-1">
+  <div class="pw-main">
+    <div class="pw-step-row">
+      <div class="pw-step active"></div><div class="pw-step"></div><div class="pw-step"></div><div class="pw-step"></div><div class="pw-step"></div>
+    </div>
+    <div class="pw-eyebrow">Referring doctor</div>
+    <h1 class="pw-heading">Review AI-generated referral</h1>
+    <p class="pw-subheading">Generated from today's consultation · Edit anything before sending</p>
+
+    <div class="pw-card" id="s1-referral">
+      <div class="pw-card-header">
+        <span class="pw-card-title">Referral summary</span>
+        <span class="pw-badge pw-badge-ai">AI generated</span>
+      </div>
+      <div class="pw-card-body">
+        <div class="pw-patient-row">
+          <div class="pw-patient-avatar" style="background:#f5e8e0;color:#c26a3a;">M</div>
+          <div>
+            <p class="pw-patient-name">Marcus Thompson</p>
+            <p class="pw-patient-meta">DOB: 14 Mar 1961 · MRN: 00482991 · Seen today, 9:40am</p>
+          </div>
+        </div>
+        <div class="pw-ai-note">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="flex-shrink:0;margin-top:1px"><circle cx="9" cy="9" r="8" stroke="#4a5adb" stroke-width="1.2"/><path d="M6 9.5l2 2 4-4" stroke="#4a5adb" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Heidi transcribed this referral from your consultation. Review and edit before sending — you remain responsible for all clinical content.</span>
+        </div>
+        <div class="pw-grid-2">
+          <div class="pw-field"><div class="pw-field-label">Referring to</div><div class="pw-field-value">Physiotherapy</div></div>
+          <div class="pw-field"><div class="pw-field-label">Urgency</div><div class="pw-field-value">Routine (within 4 weeks)</div></div>
+        </div>
+        <div class="pw-field"><div class="pw-field-label">Reason for referral</div><textarea class="pw-field-value editable" rows="2">ACL rehabilitation following surgical repair on 2 May. Patient presenting with limited range of motion and reduced weight-bearing capacity.</textarea></div>
+        <div class="pw-field"><div class="pw-field-label">Clinical context</div><textarea class="pw-field-value editable" rows="3">Post-operative ACL repair. Limited flexion to 45°. Pain score 3/10 at rest, 6/10 on movement. No DVT risk factors identified. Patient motivated and compliant.</textarea></div>
+        <div class="pw-field"><div class="pw-field-label">Goals</div><div class="pw-tags"><span class="pw-tag">Restore full range of motion</span><span class="pw-tag">Return to work (office)</span><span class="pw-tag">Progressive weight-bearing</span></div></div>
+      </div>
+      <div class="pw-action-bar">
+        <button class="pw-btn pw-btn-secondary" onclick="s1Approve()">Edit only — send later</button>
+        <button class="pw-btn pw-btn-primary" onclick="s1Approve()">Approve and send to patient</button>
+      </div>
+    </div>
+
+    <div class="pw-card" id="s1-success" style="display:none;">
+      <div class="pw-success-block">
+        <div class="pw-success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#1a6b5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h2 class="pw-success-title">Referral sent</h2>
+        <p class="pw-success-sub">Marcus will receive an SMS with his booking link shortly.<br>You'll be notified when he books and after his appointment.</p>
+        <button class="pw-next-btn" onclick="goTo(2)">See what Marcus receives →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ SCREEN 2: PATIENT -->
+<div class="pw-screen" id="screen-2">
+  <div class="pw-main">
+    <div class="pw-step-row">
+      <div class="pw-step done"></div><div class="pw-step active"></div><div class="pw-step"></div><div class="pw-step"></div><div class="pw-step"></div>
+    </div>
+    <div class="pw-eyebrow">Patient experience</div>
+    <h1 class="pw-heading">Marcus gets an SMS — and books</h1>
+    <p class="pw-subheading">No app download. No account. No friction. Works on any phone.</p>
+
+    <div class="pw-two-col">
+      <div>
+        <div class="pw-col-label">What Marcus receives</div>
+        <div class="pw-phone">
+          <div class="pw-phone-screen">
+            <div class="pw-phone-status"><span class="pw-phone-time">9:52 AM</span><span style="font-size:10px;color:#1a1a1a;">●●● ▌</span></div>
+            <div class="pw-sms-header">
+              <div class="pw-sms-avatar">PW</div>
+              <div><div class="pw-sms-sender">Pathway Health</div><div class="pw-sms-sender-sub">Text message</div></div>
+            </div>
+            <div class="pw-sms-body">
+              <div class="pw-sms-time">Today 9:52 AM</div>
+              <div class="pw-bubble">Hi Marcus, <strong>Dr. Kim</strong> has referred you to a physiotherapist for your knee rehabilitation.<br><br>Tap below to see providers near you and book — no account needed.</div>
+              <button class="pw-sms-link" onclick="document.getElementById('s2-booking').style.display='block';this.style.opacity='0.6'">Book your appointment →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="pw-col-label">Booking page (no login)</div>
+        <div class="pw-card">
+          <div id="s2-booking">
+            <div class="pw-card-header"><div class="pw-card-title">Your physiotherapy referral</div><div class="pw-card-sub">From Dr. Sarah Kim · referred today</div></div>
+            <div class="pw-card-body">
+              <div class="pw-referral-banner"><div class="pw-referral-banner-label">Why you're here</div><div class="pw-referral-banner-text">ACL rehabilitation following your surgery on 2 May. Dr. Kim wants you to start physio to restore movement and build strength.</div></div>
+              <div class="pw-section-label">Providers near you</div>
+              <div class="pw-provider-card" id="p1" onclick="selProvider('p1')"><div class="pw-provider-name">Greenfield Physio</div><div class="pw-provider-meta">Mon–Fri 8am–6pm · Bulk billing available</div><div class="pw-provider-dist">0.8 km away · Next available: Thu 12 Jun</div></div>
+              <div class="pw-provider-card" id="p2" onclick="selProvider('p2')"><div class="pw-provider-name">Westside Rehabilitation</div><div class="pw-provider-meta">Mon–Sat 7am–7pm · Health fund accepted</div><div class="pw-provider-dist">2.1 km away · Next available: Fri 13 Jun</div></div>
+              <div class="pw-section-label">Pick a time</div>
+              <div class="pw-time-grid">
+                <button class="pw-time-btn" onclick="selTime(this)">Thu 9:00am</button>
+                <button class="pw-time-btn" onclick="selTime(this)">Thu 11:30am</button>
+                <button class="pw-time-btn" onclick="selTime(this)">Thu 2:00pm</button>
+                <button class="pw-time-btn" onclick="selTime(this)">Fri 8:30am</button>
+                <button class="pw-time-btn" onclick="selTime(this)">Fri 1:00pm</button>
+                <button class="pw-time-btn" onclick="selTime(this)">Fri 4:30pm</button>
+              </div>
+              <button class="pw-confirm-btn" onclick="s2Confirm()">Confirm booking</button>
+              <div class="pw-no-account">No account or app required · Secured by Pathway</div>
+            </div>
+          </div>
+          <div id="s2-success" style="display:none;">
+            <div class="pw-success-block">
+              <div class="pw-success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#1a6b5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <h2 class="pw-success-title">You're booked, Marcus</h2>
+              <p class="pw-success-sub">Greenfield Physio<br>Thursday 12 Jun · 9:00am<br><br>Dr. Kim has been notified. Your physio will have your referral notes ready.</p>
+              <div class="pw-reminder-pill">You'll get a reminder SMS the day before</div><br>
+              <button class="pw-next-btn" onclick="goTo(3)">See the specialist view →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ SCREEN 3: SPECIALIST -->
+<div class="pw-screen" id="screen-3">
+  <div class="pw-main">
+    <div class="pw-step-row">
+      <div class="pw-step done"></div><div class="pw-step done"></div><div class="pw-step active"></div><div class="pw-step"></div><div class="pw-step"></div>
+    </div>
+    <div class="pw-eyebrow">Specialist view</div>
+    <h1 class="pw-heading">No more blind referrals</h1>
+    <p class="pw-subheading">James sees full context before Marcus even walks in the door</p>
+
+    <div class="pw-card" id="s3-main">
+      <div class="pw-card-header"><span class="pw-card-title">Incoming referral</span><span class="pw-badge pw-badge-new">New · Thu 12 Jun</span></div>
+      <div class="pw-patient-hero">
+        <div class="pw-patient-hero-avatar" style="background:#f5e8e0;color:#c26a3a;">M</div>
+        <div><div class="pw-patient-hero-name">Marcus Thompson</div><div class="pw-patient-hero-meta">DOB: 14 Mar 1961 · Age 63<br>MRN: 00482991</div></div>
+        <div class="pw-appt-pill"><div class="pw-appt-date">Thu 12 Jun</div><div class="pw-appt-time">9:00am · 60 min</div></div>
+      </div>
+      <div class="pw-context-note">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><circle cx="8" cy="8" r="7" stroke="#854f0b" stroke-width="1.2"/><path d="M8 5v4M8 11v.5" stroke="#854f0b" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span>This referral was generated by Heidi AI and approved by Dr. Kim. Review clinical notes and confirm accuracy at first consultation.</span>
+      </div>
+      <div class="pw-spec-sections">
+        <div class="pw-spec-section"><div class="pw-spec-section-label">Reason for referral</div><div class="pw-spec-section-value">ACL rehabilitation following surgical repair on 2 May. Presenting with limited range of motion and reduced weight-bearing capacity.</div></div>
+        <div class="pw-spec-section"><div class="pw-spec-section-label">Clinical findings</div><div class="pw-bullet"><div class="pw-bullet-dot"></div><div class="pw-bullet-text">Flexion limited to 45°</div></div><div class="pw-bullet"><div class="pw-bullet-dot"></div><div class="pw-bullet-text">Pain 3/10 rest · 6/10 movement</div></div><div class="pw-bullet"><div class="pw-bullet-dot"></div><div class="pw-bullet-text">No DVT risk factors identified</div></div><div class="pw-bullet"><div class="pw-bullet-dot"></div><div class="pw-bullet-text">Post-op day 41 · healing well</div></div></div>
+      </div>
+      <div class="pw-full-section"><div class="pw-spec-section-label">Treatment goals</div><div class="pw-tags" style="margin-top:8px"><span class="pw-tag">Restore full range of motion</span><span class="pw-tag">Return to work (office)</span><span class="pw-tag">Progressive weight-bearing</span></div></div>
+      <div class="pw-full-section"><div class="pw-spec-section-label">Patient notes</div><div class="pw-spec-section-value">Marcus is 63, motivated, and compliant. Works a desk job and is keen to return within 4 weeks. He expressed anxiety about re-injury — worth addressing in first session.</div></div>
+      <div class="pw-referring"><div class="pw-referring-avatar">SK</div><div class="pw-referring-text">Referred by <strong>Dr. Sarah Kim</strong> · Southside Family Practice</div></div>
+      <div class="pw-action-bar">
+        <button class="pw-btn pw-btn-ghost">Download PDF</button>
+        <button class="pw-btn pw-btn-primary" onclick="s3Accept()">Accept referral</button>
+        <span class="pw-action-note">Dr. Kim will be notified</span>
+      </div>
+    </div>
+
+    <div class="pw-card" id="s3-success" style="display:none;">
+      <div class="pw-success-block">
+        <div class="pw-success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#1a6b5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h2 class="pw-success-title">Referral accepted</h2>
+        <p class="pw-success-sub">Dr. Kim has been notified that James accepted the referral.<br>After the appointment, James will send a brief outcome update.</p>
+        <button class="pw-next-btn" onclick="goTo(4)">See the loop close →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ SCREEN 4: OUTCOME LOOP -->
+<div class="pw-screen" id="screen-4">
+  <div class="pw-main">
+    <div class="pw-step-row">
+      <div class="pw-step done"></div><div class="pw-step done"></div><div class="pw-step done"></div><div class="pw-step done"></div><div class="pw-step active"></div>
+    </div>
+    <div class="pw-eyebrow">Referral dashboard</div>
+    <h1 class="pw-heading">The loop closes</h1>
+    <p class="pw-subheading">Dr. Kim can see every referral — who booked, who attended, what happened</p>
+
+    <div id="s4-main">
+      <div class="pw-tab-row">
+        <button class="pw-tab active" onclick="this.parentNode.querySelectorAll('.pw-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">All referrals</button>
+        <button class="pw-tab" onclick="this.parentNode.querySelectorAll('.pw-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Awaiting booking</button>
+        <button class="pw-tab" onclick="this.parentNode.querySelectorAll('.pw-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Completed</button>
+      </div>
+
+      <div class="pw-card">
+        <div class="pw-card-header"><span class="pw-card-title">This week</span><span class="pw-badge pw-badge-success">3 of 4 attended</span></div>
+        <div class="pw-referral-row active-row"><div class="pw-ref-avatar" style="background:#f5e8e0;color:#c26a3a;">M</div><div><div class="pw-ref-name">Marcus Thompson</div><div class="pw-ref-meta">Physiotherapy · Greenfield Physio</div></div><div class="pw-ref-right"><span class="pw-badge pw-badge-success">Attended</span><div class="pw-ref-date" style="margin-top:4px">Thu 12 Jun</div></div></div>
+        <div class="pw-referral-row"><div class="pw-ref-avatar" style="background:#eef0fc;color:#4a5adb;">P</div><div><div class="pw-ref-name">Priya Nair</div><div class="pw-ref-meta">Dietitian · Northside Wellness</div></div><div class="pw-ref-right"><span class="pw-badge pw-badge-warn">Reminder sent</span><div class="pw-ref-date" style="margin-top:4px">Fri 13 Jun</div></div></div>
+        <div class="pw-referral-row"><div class="pw-ref-avatar" style="background:#e8f4f1;color:#1a6b5a;">D</div><div><div class="pw-ref-name">David Osei</div><div class="pw-ref-meta">Cardiologist · St. Luke's</div></div><div class="pw-ref-right"><span class="pw-badge pw-badge-success">Attended</span><div class="pw-ref-date" style="margin-top:4px">Wed 11 Jun</div></div></div>
+      </div>
+
+      <div class="pw-card">
+        <div class="pw-card-header"><span class="pw-card-title">Marcus Thompson · outcome update</span><span class="pw-badge pw-badge-success">Attended</span></div>
+        <div class="pw-detail-inner">
+          <div class="pw-outcome-box success">
+            <div class="pw-outcome-label">Visit outcome — from James Okafor, Physiotherapist</div>
+            <div class="pw-outcome-value">Initial assessment completed. Patient engaged well and ROM exercises commenced.<div style="margin-top:8px"><div class="pw-bullet"><div class="pw-bullet-dot"></div><div class="pw-bullet-text">Flexion improved to 62° after first session</div></div><div class="pw-bullet"><div class="pw-bullet-dot"></div><div class="pw-bullet-text">Full rehab plan established — 8 sessions</div></div><div class="pw-bullet"><div class="pw-bullet-dot"></div><div class="pw-bullet-text">Patient anxiety addressed — responded well</div></div></div></div>
+          </div>
+          <div class="pw-next-review"><div><div class="pw-next-review-label">Next physio session</div><div class="pw-next-review-val">Tue 17 Jun · 10:00am</div></div><button class="pw-add-btn">Add to calendar</button></div>
+        </div>
+        <div class="pw-reminder-flow">
+          <div class="pw-reminder-title">Referral timeline</div>
+          <div class="pw-timeline">
+            <div class="pw-tl-item"><div class="pw-tl-dot done"></div><div class="pw-tl-label">Referral created</div><div class="pw-tl-sub">Thu 5 Jun · 9:48am · Heidi AI + Dr. Kim</div></div>
+            <div class="pw-tl-item"><div class="pw-tl-dot done"></div><div class="pw-tl-label">SMS sent to Marcus</div><div class="pw-tl-sub">Thu 5 Jun · 9:52am · Booking link included</div></div>
+            <div class="pw-tl-item"><div class="pw-tl-dot done"></div><div class="pw-tl-label">Marcus booked</div><div class="pw-tl-sub">Thu 5 Jun · 11:14am · Greenfield Physio</div></div>
+            <div class="pw-tl-item"><div class="pw-tl-dot done"></div><div class="pw-tl-label">Reminder SMS sent</div><div class="pw-tl-sub">Wed 11 Jun · 8:00am · Day before appointment</div></div>
+            <div class="pw-tl-item"><div class="pw-tl-dot done"></div><div class="pw-tl-label">Appointment attended</div><div class="pw-tl-sub">Thu 12 Jun · 9:00am · Confirmed by James</div></div>
+            <div class="pw-tl-item"><div class="pw-tl-dot done"></div><div class="pw-tl-label">Outcome sent to Dr. Kim</div><div class="pw-tl-sub">Thu 12 Jun · 11:30am · Loop closed</div></div>
+          </div>
+        </div>
+        <div class="pw-action-bar">
+          <button class="pw-btn pw-btn-ghost">Download summary</button>
+          <button class="pw-btn pw-btn-primary" onclick="s4Done()">Done — mark complete</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="s4-finale" style="display:none;">
+      <div class="pw-card">
+        <div class="pw-success-block">
+          <div class="pw-success-icon" style="width:64px;height:64px;"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14l6 6L22 8" stroke="#1a6b5a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h2 class="pw-success-title">Full referral cycle complete</h2>
+          <p class="pw-success-sub">From Heidi generating the referral in the consultation room, to Dr. Kim reading the outcome update — every step tracked, every patient accounted for.</p>
+          <div style="display:flex;justify-content:center;gap:40px;margin-bottom:28px">
+            <div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:#1a6b5a;margin-bottom:4px">41%</div><div style="font-size:12px;color:#9a9a9a">patients who never booked before</div></div>
+            <div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:#1a6b5a;margin-bottom:4px">0</div><div style="font-size:12px;color:#9a9a9a">app downloads required</div></div>
+            <div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:#1a6b5a;margin-bottom:4px">100%</div><div style="font-size:12px;color:#9a9a9a">visibility for referring doctor</div></div>
+          </div>
+          <button class="pw-next-btn" onclick="goTo(5)">Read the rationale →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ SCREEN 5: RATIONALE -->
+<div class="pw-screen" id="screen-5">
+  <div class="pw-main-sm">
+    <div class="pw-eyebrow">Rationale + walkthrough</div>
+    <h1 class="pw-hero-title">Why this changes behavior,<br>not just tracking</h1>
+    <p class="pw-hero-sub">The existing system records that a referral was made. This system ensures it actually happens — by intervening at every point where patients drop off.</p>
+
+    <div class="pw-drop-card">
+      <div class="section-label-inner">Where drop-off is reduced</div>
+      <div class="pw-drop-row"><div class="pw-drop-num">01</div><div><div class="pw-drop-title">Patient forgets before they get home</div><div class="pw-drop-desc">The SMS arrives within minutes of the consultation ending — while the doctor's recommendation is still fresh. Booking takes 60 seconds from the link.</div><span class="pw-drop-tag timing">Timing intervention</span></div></div>
+      <div class="pw-drop-row"><div class="pw-drop-num">02</div><div><div class="pw-drop-title">Patient doesn't know who to see or how to get there</div><div class="pw-drop-desc">Nearest providers are surfaced automatically with distance, availability, and billing information. Directly addresses the barrier for older and underserved patients.</div><span class="pw-drop-tag geo">Geography intervention</span></div></div>
+      <div class="pw-drop-row"><div class="pw-drop-num">03</div><div><div class="pw-drop-title">Patient means to book but delays indefinitely</div><div class="pw-drop-desc">An automated 48hr SMS nudge re-surfaces the booking link for patients who opened it but didn't complete. No doctor action required.</div><span class="pw-drop-tag friction">Friction intervention</span></div></div>
+      <div class="pw-drop-row"><div class="pw-drop-num">04</div><div><div class="pw-drop-title">Doctor never knows what happened</div><div class="pw-drop-desc">Every step is tracked and surfaced in the referring doctor's dashboard. Attended, missed, outcome received. The loop closes automatically.</div><span class="pw-drop-tag loop">Loop closure</span></div></div>
+    </div>
+
+    <div class="pw-context-card">
+      <div class="section-label-inner">How context is preserved across handoffs</div>
+      <div class="pw-context-row"><div class="pw-context-icon" style="background:#e8f4f1"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h7M3 12h5" stroke="#1a6b5a" stroke-width="1.3" stroke-linecap="round"/></svg></div><div><div class="pw-context-title">Heidi transcript → structured referral</div><div class="pw-context-desc">Clinical context flows directly from the consultation into the referral. The doctor reviews and edits — nothing is sent without approval.</div></div></div>
+      <div class="pw-context-row"><div class="pw-context-icon" style="background:#eef0fc"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="2" stroke="#4a5adb" stroke-width="1.2"/><path d="M5 7h6M5 10h4" stroke="#4a5adb" stroke-width="1.1" stroke-linecap="round"/></svg></div><div><div class="pw-context-title">Referral → patient booking page</div><div class="pw-context-desc">The booking page shows the patient exactly why they were referred, in plain language. Reduces the "is this really necessary?" hesitation that causes silent drop-off.</div></div></div>
+      <div class="pw-context-row"><div class="pw-context-icon" style="background:#fff3e0"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="#854f0b" stroke-width="1.2"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#854f0b" stroke-width="1.2" stroke-linecap="round"/></svg></div><div><div class="pw-context-title">Referral → specialist context packet</div><div class="pw-context-desc">The receiving practitioner gets structured clinical notes, findings, goals, and patient context before the appointment. No cold starts.</div></div></div>
+      <div class="pw-context-row"><div class="pw-context-icon" style="background:#f5e8e0"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="#c26a3a" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="pw-context-title">Outcome → referring doctor</div><div class="pw-context-desc">After the appointment, the specialist sends a brief outcome update. The referring doctor's loop closes automatically.</div></div></div>
+    </div>
+
+    <div class="pw-loop-card">
+      <div class="section-label-inner">Before vs. after</div>
+      <div class="pw-loop-row"><span class="pw-loop-pill old">Referral created</span><span class="pw-loop-arrow">→</span><span class="pw-loop-pill old">Patient leaves</span><span class="pw-loop-arrow">→</span><span class="pw-loop-pill old">Silence</span><span class="pw-loop-arrow">→</span><span class="pw-loop-pill old">41% never book</span></div>
+      <div class="pw-loop-row"><span class="pw-loop-pill new">Referral created</span><span class="pw-loop-arrow">→</span><span class="pw-loop-pill new">SMS in minutes</span><span class="pw-loop-arrow">→</span><span class="pw-loop-pill new">Book in 60 sec</span><span class="pw-loop-arrow">→</span><span class="pw-loop-pill new">Specialist briefed</span><span class="pw-loop-arrow">→</span><span class="pw-loop-pill new">Loop closed</span></div>
+      <div class="pw-loop-desc">The key design principle: every intervention removes a decision the patient has to make themselves. The system does the work — finding providers, sending reminders, closing the loop — so patients don't have to.</div>
+    </div>
+
+    <div class="pw-trust-card">
+      <div class="section-label-inner">Designed for all three stakeholders</div>
+      <div class="pw-trust-grid">
+        <div class="pw-trust-item"><div class="pw-trust-who">Referring doctor</div><div class="pw-trust-val">AI drafts, doctor approves. Full visibility from referral to outcome. Zero extra admin.</div></div>
+        <div class="pw-trust-item"><div class="pw-trust-who">Patient</div><div class="pw-trust-val">SMS only. No app, no account. Plain language. Nearest provider shown. Works on any phone.</div></div>
+        <div class="pw-trust-item"><div class="pw-trust-who">Specialist</div><div class="pw-trust-val">Full context before the visit. No blind referrals. Knows who sent it and why.</div></div>
+      </div>
+    </div>
+
+    <div class="pw-closing">
+      <div class="pw-closing-title">A continuity layer for Heidi Scribe</div>
+      <div class="pw-closing-sub">Heidi already solves documentation. This is what happens after the referral leaves the room — built as a working prototype, not a deck.</div>
+    </div>
+
+    <div class="pw-footer">
+      <div class="pw-footer-text">Leslie Cai · CS & Cognitive Science, University of Michigan · <a href="mailto:lesliehc@umich.edu">lesliehc@umich.edu</a> · <a href="https://linkedin.com/in/lesliehc">linkedin.com/in/lesliehc</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function goTo(n) {
+    document.querySelectorAll('.pw-screen').forEach((s,i) => s.classList.toggle('active', i===n));
+    document.querySelectorAll('.pw-nav-pill').forEach((p,i) => p.classList.toggle('active', i===n));
+    window.scrollTo(0,0);
+  }
+  function s1Approve() {
+    document.getElementById('s1-referral').style.display='none';
+    document.getElementById('s1-success').style.display='block';
+  }
+  function selProvider(id) {
+    document.querySelectorAll('.pw-provider-card').forEach(c=>c.classList.remove('selected'));
+    document.getElementById(id).classList.add('selected');
+  }
+  function selTime(btn) {
+    document.querySelectorAll('.pw-time-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+  function s2Confirm() {
+    document.getElementById('s2-booking').style.display='none';
+    document.getElementById('s2-success').style.display='block';
+  }
+  function s3Accept() {
+    document.getElementById('s3-main').style.display='none';
+    document.getElementById('s3-success').style.display='block';
+  }
+  function s4Done() {
+    document.getElementById('s4-main').style.display='none';
+    document.getElementById('s4-finale').style.display='block';
+  }
+</script>
+</body>
+</html>
