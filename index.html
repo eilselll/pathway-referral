@@ -253,6 +253,47 @@
 </style>
 </head>
 <body>
+<script>
+function goTo(n) {
+  var screens = document.querySelectorAll('.pw-screen');
+  var pills = document.querySelectorAll('.pw-nav-pill');
+  for (var i = 0; i < screens.length; i++) {
+    screens[i].style.display = (i === n) ? 'block' : 'none';
+  }
+  for (var j = 0; j < pills.length; j++) {
+    pills[j].className = pills[j].className.replace(' active','');
+    if (j === n) pills[j].className += ' active';
+  }
+  window.scrollTo(0,0);
+}
+function s1Approve() {
+  document.getElementById('s1-referral').style.display='none';
+  document.getElementById('s1-success').style.display='block';
+}
+function selProvider(id) {
+  var cards = document.querySelectorAll('.pw-provider-card');
+  for (var i=0;i<cards.length;i++) cards[i].className=cards[i].className.replace(' selected','');
+  document.getElementById(id).className += ' selected';
+}
+function selTime(btn) {
+  var btns = document.querySelectorAll('.pw-time-btn');
+  for (var i=0;i<btns.length;i++) btns[i].className=btns[i].className.replace(' selected','');
+  btn.className += ' selected';
+}
+function s2Confirm() {
+  document.getElementById('s2-booking').style.display='none';
+  document.getElementById('s2-success').style.display='block';
+}
+function s3Accept() {
+  document.getElementById('s3-main').style.display='none';
+  document.getElementById('s3-success').style.display='block';
+}
+function s4Done() {
+  document.getElementById('s4-main').style.display='none';
+  document.getElementById('s4-finale').style.display='block';
+}
+</script>
+
 
 <div class="pw-topbar">
   <div class="pw-logo">pathway<span>.</span></div>
@@ -338,7 +379,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ SCREEN 1: DOCTOR -->
-<div class="pw-screen" id="screen-1">
+<div class="pw-screen" id="screen-1" style="display:none">
   <div class="pw-main">
     <div class="pw-step-row">
       <div class="pw-step active"></div><div class="pw-step"></div><div class="pw-step"></div><div class="pw-step"></div><div class="pw-step"></div>
@@ -390,7 +431,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ SCREEN 2: PATIENT -->
-<div class="pw-screen" id="screen-2">
+<div class="pw-screen" id="screen-2" style="display:none">
   <div class="pw-main">
     <div class="pw-step-row">
       <div class="pw-step done"></div><div class="pw-step active"></div><div class="pw-step"></div><div class="pw-step"></div><div class="pw-step"></div>
@@ -457,7 +498,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ SCREEN 3: SPECIALIST -->
-<div class="pw-screen" id="screen-3">
+<div class="pw-screen" id="screen-3" style="display:none">
   <div class="pw-main">
     <div class="pw-step-row">
       <div class="pw-step done"></div><div class="pw-step done"></div><div class="pw-step active"></div><div class="pw-step"></div><div class="pw-step"></div>
@@ -503,7 +544,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ SCREEN 4: OUTCOME LOOP -->
-<div class="pw-screen" id="screen-4">
+<div class="pw-screen" id="screen-4" style="display:none">
   <div class="pw-main">
     <div class="pw-step-row">
       <div class="pw-step done"></div><div class="pw-step done"></div><div class="pw-step done"></div><div class="pw-step done"></div><div class="pw-step active"></div>
@@ -572,7 +613,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ SCREEN 5: RATIONALE -->
-<div class="pw-screen" id="screen-5">
+<div class="pw-screen" id="screen-5" style="display:none">
   <div class="pw-main-sm">
     <div class="pw-eyebrow">Rationale + walkthrough</div>
     <h1 class="pw-hero-title">Why this changes behavior,<br>not just tracking</h1>
